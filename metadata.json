@@ -1,0 +1,5 @@
+{
+  "name": "SocPark",
+  "description": "Une application de gestion de places de parking pour entreprise. Permet le partage et la réservation de places entre collaborateurs.",
+  "requestFramePermissions": []
+}
