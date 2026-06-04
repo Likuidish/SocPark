@@ -46,7 +46,7 @@ const App: React.FC = () => {
           <Route path="/home" element={<Marketplace user={user} title="Accueil" />} />
           <Route path="/marketplace" element={<Marketplace user={user} />} />
           <Route path="/my-spots" element={<MySpots user={user} />} />
-          <Route path="/settings" element={<Settings user={user} />} />
+          <Route path="/settings" element={<Settings user={user} onLogout={handleLogout} />} />
           <Route 
             path="/admin" 
             element={user.isAdmin ? <AdminDashboard /> : <Navigate to="/" replace />} 
