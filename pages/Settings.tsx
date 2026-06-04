@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { storage } from '../services/storage';
-import { Lock, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, Save, AlertCircle, CheckCircle, Trash2, AlertTriangle } from 'lucide-react';
 
 interface SettingsProps {
   user: User;
+  onLogout?: () => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ user }) => {
+export const Settings: React.FC<SettingsProps> = ({ user, onLogout }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,6 +16,29 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (
+      window.confirm(
+        "Êtes-vous sûr de vouloir supprimer votre compte et toutes vos données associées ?\n\nCette action est DÉFINITIVE et irréversible."
+      )
+    ) {
+      setIsDeleting(true);
+      setError('');
+      try {
+        await storage.deleteUser(user.id);
+        if (onLogout) {
+          onLogout();
+        } else {
+          window.location.reload();
+        }
+      } catch (err: any) {
+        setError(err.message || "Erreur lors de la suppression du compte");
+        setIsDeleting(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +144,32 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                        )}
                    </button>
                </form>
+           </div>
+       </div>
+
+       {/* ZONE DE DANGER */}
+       <div className="bg-red-50 rounded-xl shadow-sm border border-red-200 overflow-hidden">
+           <div className="p-6 border-b border-red-200 bg-red-100/50">
+               <h3 className="text-lg font-semibold text-red-700 flex items-center gap-2">
+                   <AlertTriangle size={20} />
+                   Zone de danger
+               </h3>
+               <p className="text-sm text-red-600 mt-1">Actions irréversibles concernant votre compte</p>
+           </div>
+           
+           <div className="p-6">
+                <p className="text-sm text-slate-800 mb-4">
+                  La suppression de votre compte entraînera son effacement définitif de la base de données. Vous perdrez l'accès à toutes vos réservations.
+                </p>
+                <button 
+                  onClick={handleDeleteAccount}
+                  type="button"
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <Trash2 size={18} />
+                    {isDeleting ? "Suppression en cours..." : "Supprimer mon compte"}
+                </button>
            </div>
        </div>
     </div>
